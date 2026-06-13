@@ -250,6 +250,13 @@ class HotmailRegistrar:
         opts = FirefoxOptions()
         opts.set_port(free_port)  # 预先设置端口，确保单例 key 唯一
 
+        # ★★★ 在 CI/CD 环境中添加额外的 Firefox 参数以提高稳定性 ★★★
+        if os.environ.get("CI"):
+            log.info("检测到 CI 环境，为 Firefox 添加 '--no-sandbox' 等参数")
+            if not hasattr(opts, '_arguments'):
+                opts._arguments = []
+            opts._arguments.extend(['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu'])
+
         # Firefox 路径
         ff_path = self.args.firefox_path or find_firefox()
         if ff_path:
@@ -529,8 +536,8 @@ class HotmailRegistrar:
                 log.info("2captcha 返回 token，尝试注入...")
                 try:
                     self.page.run_js(
-                        f"document.querySelector('[name=\"px-captcha\"]') && "
-                        f"(document.querySelector('[name=\"px-captcha\"]').value = '{token}');"
+                        f"document.querySelector('[name="px-captcha"]') && "
+                        f"(document.querySelector('[name="px-captcha"]').value = '{token}');"
                     )
                     time.sleep(2)
                     title = self.page.title or ""
