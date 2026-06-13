@@ -1,3 +1,4 @@
+
 name: Register Hotmail Accounts
 
 on:
@@ -18,25 +19,20 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install Dependencies and non-Snap Firefox
+    - name: Install Firefox ESR for stability
       run: |
         sudo apt-get update
-        # Install prerequisites for add-apt-repository and xvfb
-        sudo apt-get install -y software-properties-common xvfb
-        # Add Mozilla PPA and install the .deb version of Firefox
+        sudo apt-get install -y software-properties-common
         sudo add-apt-repository ppa:mozillateam/ppa -y
         sudo apt-get update
-        sudo apt-get install -y firefox
+        sudo apt-get install -y firefox-esr
 
     - name: Install Python dependencies
       run: pip install ruyiPage faker requests
 
-    - name: Run registration script with virtual display
-      # Use xvfb-run to provide a virtual display, which can help with stability
-      # even in headless mode. The --auto-servernum and --server-args are standard practices.
+    - name: Run registration script
       run: |
-        xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" \
-        python hotmail_register.py --count 5 --headless --delay 30
+        python hotmail_register.py --count 5 --headless --delay 30 --firefox-path /usr/bin/firefox-esr
 
     - name: Upload registration results
       uses: actions/upload-artifact@v4
