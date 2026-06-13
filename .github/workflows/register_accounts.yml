@@ -1,0 +1,41 @@
+
+name: Register Hotmail Accounts
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install Firefox
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y firefox
+
+    - name: Install Python dependencies
+      run: pip install ruyiPage faker requests
+
+    - name: Run registration script
+      run: python hotmail_register.py --count 5 --headless --delay 30
+
+    - name: Upload registration results
+      uses: actions/upload-artifact@v4
+      with:
+        name: registration-results
+        path: |
+          accounts.txt
+          hotmail_register.log
+          *.png
+        if-no-files-found: ignore
